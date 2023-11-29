@@ -1,0 +1,39 @@
+version: '3'
+services:
+  rabbitmq1:
+    image: rabbitmq:3.12-management
+    hostname: node1
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    networks:
+      - rabbitmq
+  rabbitmq2:
+    image: rabbitmq:3.12-management
+    hostname: node2
+    environment:
+      - RABBITMQ_DEFAULT_USER=myuser
+      - RABBITMQ_DEFAULT_PASS=mypassword
+    links:
+      - rabbitmq1
+    networks:
+      - rabbitmq
+  loadbalancer:
+    image: nginx
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    links:
+      - rabbitmq1
+      - rabbitmq2
+    networks:
+      - rabbitmq
+
+networks:
+  rabbitmq:
+    external: false
+
+
+      
